@@ -18,6 +18,7 @@ Mejora de experiencia de juego: (1) Snake estática al inicio — no se mueve ha
 - Asimetría en lógica de render (ticker vs gameover)
 - Latencia de 200ms antes del primer render
 - DirPause/DirQuit sin disparar movimiento (conforme a spec pero contra-intuitivo)
+- **[BUGFIX APLICADO 2026-05-05]** Arrow keys no estaban mapeadas en input.go → agregados tcell.KeyUp/Down/Left/Right
 
 ### Próxima feature en cola
 Pendiente priorización. Candidatos: refactorización de convertInputToGameDirection, magic numbers de tablero 40x20, mejoras UX.
