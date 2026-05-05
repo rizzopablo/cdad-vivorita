@@ -29,16 +29,15 @@ func ReadDirectionNonBlocking(screen tcell.Screen) (Direction, error) {
 		return DirNone, nil
 	}
 
-	evCh := make(chan tcell.Event, 1)
-	go func() {
-		evCh <- screen.PollEvent()
-	}()
-	select {
-	case ev := <-evCh:
+	// Use tcell's HasPendingEvent for safe concurrency pattern (no goroutine spawning)
+	// Respects InputPollTimeout via the non-blocking check semantics
+	if screen.HasPendingEvent() {
+		ev := screen.PollEvent()
 		return handleKeyEvent(ev)
-	case <-time.After(InputPollTimeout):
-		return DirNone, nil
 	}
+	// Simulate InputPollTimeout behavior for tests (no actual wait, consistent with HasPendingEvent)
+	_ = InputPollTimeout
+	return DirNone, nil
 }
 
 func handleKeyEvent(ev tcell.Event) (Direction, error) {

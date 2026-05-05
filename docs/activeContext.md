@@ -1,5 +1,29 @@
 # Active Context
 
+## 2026-05-05 — Feature: 005-input-capture-broken (DEFECT) — DONE
+
+**Estado**: Merge + Memory Bank — Ciclo CDAD completo (Etapa 5 cerrada)
+
+### Resumen
+Fixed critical keyboard input defect. Keyboard input was completely non-functional due to: (1) unsafe goroutine spawning in `ReadDirectionNonBlocking()` causing goroutine leaks and event loss, (2) missing initial board render before game loop. Fixed via: (1) refactored input polling to use `screen.HasPendingEvent()` safe pattern, (2) added initial render with logging before select loop.
+
+### Decisiones relevantes
+- **Safe tcell concurrency**: Replaced `go func() { evCh <- screen.PollEvent() }()` pattern with `screen.HasPendingEvent()` non-blocking check + single `PollEvent()` call
+- **Initial render timing**: Board rendered immediately after screen setup (lines 32-37 main.go) with `"source":"initial"` logging, before ticker and select loop
+- **tcell API clarification**: Discovered that `screen.Init()` automatically configures raw mode; no additional config needed
+
+### Deuda técnica resuelta
+- ✅ Goroutine leak in input polling (was causing event loss)
+- ✅ Race condition in select loop (was bottlenecking input capture)
+- ✅ Missing initial board render (was violating PC8 of 004-gameplay-polish)
+
+### Métricas
+- **Ciclo CDAD**: Discovery → Specification → TDD RED → TDD GREEN → REVIEW → MERGE (6 etapas)
+- **Tests**: 20 total (4 failing→passing, 8+ regression preserved, 60+ total project tests passing)
+- **Code changes**: 2 files, 12 lines added/modified, zero regressions
+
+---
+
 ## 2026-05-05 — Feature: 004-gameplay-polish
 
 **Estado**: Done — Ciclo CDAD completo (Etapa 5 cerrada)

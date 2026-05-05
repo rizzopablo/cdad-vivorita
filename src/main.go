@@ -29,6 +29,13 @@ func main() {
 
 	input.LogEvent = observability.LogEvent
 
+	// Initial render before game loop
+	render.RenderBoard(screen, g.Snake(), g.Food(), g.Score(), g.HighScore())
+	observability.LogEvent("render", map[string]interface{}{
+		"source": "initial",
+	})
+	screen.Show()
+
 	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
 

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "active_feature": "004-gameplay-polish",
-  "current_stage": "discovery",
+  "active_feature": "005-input-capture-broken",
+  "current_stage": "merge",
   "tdd_substage": null,
-  "postconditions_status": {},
+  "postconditions_status": {"1": "done", "2": "done", "3": "done", "4": "done", "5": "done", "6": "done", "7": "done", "8": "done", "9": "done", "10": "done"},
   "stage_history": [
     {"stage": "discovery", "completed_at": "2026-05-04T00:00:00Z"},
     {"stage": "specification", "completed_at": "2026-05-04T00:00:00Z", "approved_by": "Pablo Manuel Rizzo"},
@@ -35,7 +35,14 @@
     {"stage": "tdd_green", "feature": "003-input-capture-investigation", "completed_at": "2026-05-05T00:00:00Z", "note": "22/22 verde (8 nuevos + 13 observability + 1 direction preservation)"},
     {"stage": "tdd_green_fix_test", "feature": "003-input-capture-investigation", "completed_at": "2026-05-05T00:00:00Z", "note": "PC2 test fixed (AST analysis instead of string search)"},
     {"stage": "review", "feature": "003-input-capture-investigation", "completed_at": "2026-05-05T00:00:00Z", "note": "0 bloqueantes, 1 opcional (I5: magic number)"},
-    {"stage": "merge", "feature": "003-input-capture-investigation", "completed_at": "2026-05-05T00:00:00Z", "note": "Memory Bank actualizado"}
+    {"stage": "merge", "feature": "003-input-capture-investigation", "completed_at": "2026-05-05T00:00:00Z", "note": "Memory Bank actualizado"},
+    {"stage": "review", "feature": "004-gameplay-polish", "completed_at": "2026-05-05T00:00:00Z", "note": "0 bloqueantes, 5 opcionales, spec compliant"},
+    {"stage": "merge", "feature": "004-gameplay-polish", "completed_at": "2026-05-05T00:00:00Z", "note": "Memory Bank actualizado, feature done"},
+    {"stage": "discovery", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:00:00Z", "note": "Gate violation detected: 004-gameplay-polish keyboard input broken. Root cause: tcell raw mode not configured, race condition in select, no initial render. Defect opened."},
+    {"stage": "specification", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:15:00Z", "approved_by": "Architect Discovery", "note": "Spec updated with discovery findings: RC1 false alarm (tcell handles), RC2/RC3 confirmed. 6 postconditions, 4 invariants defined."},
+    {"stage": "tdd_red", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:30:00Z", "note": "20 test cases created (4 FAIL, 8+ PASS). PC1-PC2 detect defects, PC3-PC6 regression protection."},
+    {"stage": "tdd_green", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:45:00Z", "note": "Implementer fixed PC1 (initial render before loop) + PC2 (safe concurrency). All 4 failing tests now pass, 8+ regression tests preserved."},
+    {"stage": "review", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T13:00:00Z", "note": "Reviewer validated all 6 postconditions + 4 invariants. Zero blockers. Ready for merge."}
   ],
   "previous_feature": "003-input-capture-investigation",
   "approver": "Pablo Manuel Rizzo",
