@@ -266,8 +266,8 @@ func TestPostcondition6_NoReverseDirection(t *testing.T) {
 	snake2.Move(DirDown)
 	headAfterDownAttempt := snake2.Head()
 
-	// La Y debería haber seguido aumentando (subiendo), no disminuyendo
-	if headAfterDownAttempt.Y <= headAfterUp.Y {
+	// La Y debería haber seguido disminuyendo (subiendo), no aumentando (bajando)
+	if headAfterDownAttempt.Y >= headAfterUp.Y {
 		t.Error("Direction should not reverse: attempted to go down while going up")
 	}
 }
