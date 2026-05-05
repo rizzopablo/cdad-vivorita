@@ -1,5 +1,22 @@
 # Active Context
 
+## 2026-05-05 — Hotfix: Arrow keys direction inversion (post-merge bug) — DONE
+
+**Estado**: Hotfix merged — Deuda técnica resuelta
+
+### Resumen
+Post-merge manual testing revealed arrow up/down inverted: pressing UP moved snake DOWN, pressing DOWN moved snake UP. Root cause: `snake.Move()` used inverted Y coordinate semantics (DirUp incremented Y, DirDown decremented Y) vs. terminal convention (Y=0 top, increases downward). Fixed: swapped signs in switch cases. Regression test added: `TestSnake_VerticalDirectionSemantics` verifies all four directions map correctly to coordinate changes.
+
+### Deuda técnica resuelta
+- ✅ **Coordenada Y invertida** (detectada en feature 001 pero nunca resuelta): `render.go` usa convención de terminal (Y=0 arriba), `snake.go` ahora también. No hay divergencia.
+
+### Métricas
+- **Fix atomico**: 2 líneas en snake.go (Y+1 ↔ Y-1)
+- **Test coverage**: 1 test (TestSnake_VerticalDirectionSemantics) captures bug and verifies fix
+- **Regression**: 0 — all 36+ tests pass
+
+---
+
 ## 2026-05-05 — Feature: 005-input-capture-broken (DEFECT) — DONE
 
 **Estado**: Merge + Memory Bank — Ciclo CDAD completo (Etapa 5 cerrada)

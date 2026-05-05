@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "active_feature": "005-input-capture-broken",
+  "active_feature": "006-vertical-direction-inversion",
   "current_stage": "done",
   "tdd_substage": null,
   "postconditions_status": {"1": "done", "2": "done", "3": "done", "4": "done", "5": "done", "6": "done", "7": "done", "8": "done", "9": "done", "10": "done"},
@@ -42,7 +42,8 @@
     {"stage": "specification", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:15:00Z", "approved_by": "Architect Discovery", "note": "Spec updated with discovery findings: RC1 false alarm (tcell handles), RC2/RC3 confirmed. 6 postconditions, 4 invariants defined."},
     {"stage": "tdd_red", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:30:00Z", "note": "20 test cases created (4 FAIL, 8+ PASS). PC1-PC2 detect defects, PC3-PC6 regression protection."},
     {"stage": "tdd_green", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:45:00Z", "note": "Implementer fixed PC1 (initial render before loop) + PC2 (safe concurrency). All 4 failing tests now pass, 8+ regression tests preserved."},
-    {"stage": "review", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T13:00:00Z", "note": "Reviewer validated all 6 postconditions + 4 invariants. Zero blockers. Ready for merge."}
+    {"stage": "review", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T13:00:00Z", "note": "Reviewer validated all 6 postconditions + 4 invariants. Zero blockers. Ready for merge."},
+    {"stage": "hotfix", "feature": "006-vertical-direction-inversion", "completed_at": "2026-05-05T14:30:00Z", "note": "Post-merge manual testing found arrow up/down inverted. DirUp was Y+1 (should be Y-1), DirDown was Y-1 (should be Y+1). Fixed in snake.Move(). Test added: TestSnake_VerticalDirectionSemantics. All 36+ tests green."}
   ],
   "previous_feature": "003-input-capture-investigation",
   "approver": "Pablo Manuel Rizzo",
