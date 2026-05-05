@@ -721,6 +721,60 @@ func TestPostcondition13_SnapshotOnGameoverInMain(t *testing.T) {
 	os.RemoveAll(logsDir)
 }
 
+// PC8: El tablero inicial es visible desde el inicio sin input
+func TestGameLoop_BoardVisibleWithoutInput(t *testing.T) {
+	mainSource, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceContent := string(mainSource)
+	hasCorrectTicker := strings.Contains(sourceContent, "time.NewTicker(200 * time.Millisecond)")
+	if !hasCorrectTicker {
+		t.Errorf("PC8: Ticker must be 200ms")
+	}
+
+	tickerIdx := strings.Index(sourceContent, "case <-ticker.C:")
+	if tickerIdx != -1 {
+		tickerSection := sourceContent[tickerIdx : tickerIdx+800]
+		hasConditionalRender := false
+		if strings.Contains(tickerSection, "if firstInputReceived") {
+			ifIdx := strings.Index(tickerSection, "if firstInputReceived")
+			afterIf := tickerSection[ifIdx:]
+			if strings.Contains(afterIf, "RenderBoard") || strings.Contains(afterIf, "render") {
+				hasConditionalRender = true
+			}
+		}
+
+		if hasConditionalRender {
+			t.Errorf("PC8 RED: Board render conditioned on firstInputReceived")
+		}
+	}
+}
+
+// PC10: No hay logs de "waiting for input"
+func TestGameLoop_NoWaitingForInputLogs(t *testing.T) {
+	mainSource, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceContent := string(mainSource)
+	waitingEvents := []string{"waiting_for_input", "poll_timeout", "waiting_for_direction", "input_waiting"}
+
+	for _, event := range waitingEvents {
+		eventLog := "LogEvent(\"" + event + "\""
+		if strings.Contains(sourceContent, eventLog) {
+			t.Errorf("PC10 RED: main.go contains LogEvent('%s')", event)
+		}
+	}
+
+	hasFirstInputLogic := strings.Contains(sourceContent, "firstInputReceived")
+	if !hasFirstInputLogic {
+		t.Errorf("PC10 RED: firstInputReceived logic not found")
+	}
+}
+
 func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {

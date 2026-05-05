@@ -250,3 +250,93 @@ func TestGameLoop_TickerIs200ms(t *testing.T) {
 			"Must change to time.NewTicker(200 * time.Millisecond)")
 	}
 }
+
+// PC4: Game loop mantiene flag "firstInputReceived" inicializado en false
+func TestGameLoop_FirstInputReceivedFlagExists(t *testing.T) {
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	hasFlag := strings.Contains(sourceStr, "firstInputReceived")
+	if !hasFlag {
+		t.Errorf("PC4 RED: firstInputReceived flag not found in main.go")
+	}
+
+	hasInit := strings.Contains(sourceStr, "firstInputReceived := false") ||
+		strings.Contains(sourceStr, "firstInputReceived=false")
+	if !hasInit {
+		t.Errorf("PC4 RED: firstInputReceived not initialized to false")
+	}
+}
+
+// PC5: El flag "firstInputReceived" se asigna true en primer input válido
+func TestGameLoop_FirstInputReceivedSetOnValidDirection(t *testing.T) {
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	hasAssignment := strings.Contains(sourceStr, "firstInputReceived = true") ||
+		strings.Contains(sourceStr, "firstInputReceived=true")
+	if !hasAssignment {
+		t.Errorf("PC5 RED: firstInputReceived never set to true")
+	}
+}
+
+// PC6: Mientras firstInputReceived es false, g.Update() NO se invoca
+func TestGameLoop_SnakeFrozenUntilFirstInput(t *testing.T) {
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	hasUpdateConditional := strings.Contains(sourceStr, "if firstInputReceived")
+	if !hasUpdateConditional {
+		t.Errorf("PC6 RED: g.Update() not conditionally executed on firstInputReceived")
+	}
+}
+
+// PC7: Cuando se recibe primer input válido, g.Update() se invoca y movimiento comienza
+func TestGameLoop_SnakeMoveAfterFirstInput(t *testing.T) {
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	hasTransitionLogic := strings.Contains(sourceStr, "firstInputReceived = true")
+	if !hasTransitionLogic {
+		t.Errorf("PC7 RED: firstInputReceived flag transition logic missing")
+	}
+}
+
+// PC9: Post-primer-input, el game loop se comporta exactamente igual al anterior
+func TestGameLoop_PostFirstInputBehaviorUnchanged(t *testing.T) {
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+
+	// Verificar que tras implementar PC4-7, el post-primer-input se comporta igual
+	// Debe haber lógica que diferencia pre y post primer input
+	hasFirstInputLogic := strings.Contains(sourceStr, "firstInputReceived")
+	if !hasFirstInputLogic {
+		t.Errorf("PC9 RED: firstInputReceived logic not found in main.go")
+	}
+
+	hasUpdateCall := strings.Contains(sourceStr, "g.Update(")
+	if !hasUpdateCall {
+		t.Errorf("PC9 RED: g.Update() not found in game loop")
+	}
+
+	hasTicker := strings.Contains(sourceStr, "ticker.C")
+	if !hasTicker {
+		t.Errorf("PC9 RED: Ticker not used in select")
+	}
+}

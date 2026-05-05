@@ -144,3 +144,56 @@ func TestInput_DirNoneConstantExists(t *testing.T) {
 		t.Errorf("PC7 FAIL: DirNone should have value 6, got %d", int(dir))
 	}
 }
+
+// PC2: InputPollTimeout constante definida
+func TestInput_InputPollTimeoutConstantDefined(t *testing.T) {
+	source, err := os.ReadFile("../src/input/input.go")
+	if err != nil {
+		t.Fatalf("Failed to read input.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	hasConstant := strings.Contains(sourceStr, "const InputPollTimeout")
+	if !hasConstant {
+		t.Errorf("PC2 RED: InputPollTimeout constant not defined")
+	}
+
+	hasCorrectValue := strings.Contains(sourceStr, "const InputPollTimeout = 10 * time.Millisecond") ||
+		strings.Contains(sourceStr, "const InputPollTimeout=10*time.Millisecond")
+	if !hasCorrectValue && hasConstant {
+		t.Errorf("PC2 RED: InputPollTimeout has wrong value")
+	}
+}
+
+// PC3: ReadDirectionNonBlocking() usa InputPollTimeout
+func TestInput_ReadDirectionUsesInputPollTimeout(t *testing.T) {
+	source, err := os.ReadFile("../src/input/input.go")
+	if err != nil {
+		t.Fatalf("Failed to read input.go: %v", err)
+	}
+
+	sourceStr := string(source)
+	funcIdx := strings.Index(sourceStr, "func ReadDirectionNonBlocking")
+	if funcIdx == -1 {
+		t.Fatal("PC3: Could not find ReadDirectionNonBlocking function")
+	}
+
+	funcEnd := strings.Index(sourceStr[funcIdx:], "\nfunc ")
+	if funcEnd == -1 {
+		funcEnd = len(sourceStr)
+	} else {
+		funcEnd += funcIdx
+	}
+	funcBody := sourceStr[funcIdx:funcEnd]
+
+	usesConstant := strings.Contains(funcBody, "InputPollTimeout")
+	if !usesConstant {
+		t.Errorf("PC3 RED: ReadDirectionNonBlocking does not use InputPollTimeout")
+	}
+
+	hasMagicNumber := strings.Contains(funcBody, "time.After(10 * time.Millisecond)") ||
+		strings.Contains(funcBody, "time.After(10*time.Millisecond)")
+	if hasMagicNumber {
+		t.Errorf("PC3 RED: ReadDirectionNonBlocking uses magic number 10ms")
+	}
+}
