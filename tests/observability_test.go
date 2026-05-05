@@ -153,6 +153,42 @@ func TestPostcondition3_LogUpdateEvents(t *testing.T) {
 	os.RemoveAll(logsDir)
 }
 
+func TestPostcondition4_LogRenderEvents(t *testing.T) {
+	os.Setenv("DEBUG", "1")
+
+	logsDir := "./logs"
+	logFile := logsDir + "/vivorita2-debug.log"
+
+	os.RemoveAll(logsDir)
+
+	err := observability.InitLogging()
+	if err != nil {
+		t.Fatalf("InitLogging() returned error: %v", err)
+	}
+
+	observability.LogEvent("render", map[string]interface{}{
+		"timestamp": "2026-05-05T12:00:00Z",
+	})
+
+	content, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("Failed to read log file: %v", err)
+	}
+
+	logContent := string(content)
+
+	if !containsSubstring(logContent, "render") {
+		t.Error("Expected log to contain 'render' event")
+	}
+
+	if !containsSubstring(logContent, "timestamp") {
+		t.Error("Expected log to contain 'timestamp'")
+	}
+
+	os.Unsetenv("DEBUG")
+	os.RemoveAll(logsDir)
+}
+
 func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
