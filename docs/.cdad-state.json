@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "active_feature": null,
+  "current_stage": "done",
+  "tdd_substage": null,
+  "postconditions_status": {"1": "green", "2": "green", "3": "green", "4": "green", "5": "green", "6": "green", "7": "green", "8": "green", "9": "green", "10": "green"},
+  "stage_history": [
+    {"stage": "discovery", "completed_at": "2026-05-04T00:00:00Z"},
+    {"stage": "specification", "completed_at": "2026-05-04T00:00:00Z", "approved_by": "Pablo Manuel Rizzo"},
+    {"stage": "test_audit", "completed_at": "2026-05-04T00:00:00Z", "approved_by": "Pablo Manuel Rizzo"},
+    {"stage": "tdd_red", "completed_at": "2026-05-04T00:00:00Z"},
+    {"stage": "tdd_green", "completed_at": "2026-05-04T00:00:00Z", "note": "9/10 green, PC6 red - bug en invariante I1"},
+    {"stage": "tdd_green_fix", "completed_at": "2026-05-04T00:00:00Z", "note": "PC6 fix, 10/10 green"},
+    {"stage": "review", "completed_at": "2026-05-04T00:00:00Z", "note": "6 bloqueantes detectados"},
+    {"stage": "review_fixes", "completed_at": "2026-05-04T00:00:00Z", "note": "6 bloqueantes resueltos, estructura según spec"},
+    {"stage": "review_rereview", "completed_at": "2026-05-04T00:00:00Z", "note": "6/6 bloqueantes confirmados resueltos"},
+    {"stage": "merge", "completed_at": "2026-05-05T00:00:00Z", "note": "Memory Bank actualizado"}
+  ],
+  "approver": "Pablo Manuel Rizzo",
+  "last_updated": "2026-05-05T00:00:00Z"
+}
