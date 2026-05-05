@@ -1,5 +1,29 @@
 # Active Context
 
+## 2026-05-05 — Feature: 004-gameplay-polish
+
+**Estado**: Done — Ciclo CDAD completo (Etapa 5 cerrada)
+
+### Resumen
+Mejora de experiencia de juego: (1) Snake estática al inicio — no se mueve hasta primer input de dirección, (2) Velocidad 200ms (33% más lenta que 150ms), (3) Constante InputPollTimeout eliminando magic number 10ms.
+
+### Decisiones relevantes
+- **Flag `firstInputReceived`**: Inicializado false, asignado true en primer input de dirección válida (DirUp/Down/Left/Right). Monótono: once true, siempre true.
+- **Condicional de Update**: `g.Update()` solo cuando `firstInputReceived && !g.IsOver()`.
+- **Ticker 200ms**: Línea 32 de main.go.
+- **InputPollTimeout const**: Línea 13 de input.go, usado en time.After().
+
+### Deuda técnica detectada
+- Redundancia en verificación de flag (líneas 61-64 en main.go, subóptimo)
+- Asimetría en lógica de render (ticker vs gameover)
+- Latencia de 200ms antes del primer render
+- DirPause/DirQuit sin disparar movimiento (conforme a spec pero contra-intuitivo)
+
+### Próxima feature en cola
+Pendiente priorización. Candidatos: refactorización de convertInputToGameDirection, magic numbers de tablero 40x20, mejoras UX.
+
+---
+
 ## 2026-05-05 — Feature: 003-input-capture-investigation
 
 **Estado**: Done — Ciclo CDAD completo (Etapa 5 cerrada)
