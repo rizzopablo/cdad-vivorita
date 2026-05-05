@@ -56,6 +56,54 @@ func TestPostcondition1_InitLogging(t *testing.T) {
 	os.RemoveAll(logsDir)
 }
 
+func TestPostcondition2_LogInputEvents(t *testing.T) {
+	os.Setenv("DEBUG", "1")
+
+	logsDir := "./logs"
+	logFile := logsDir + "/vivorita2-debug.log"
+
+	os.RemoveAll(logsDir)
+
+	err := observability.InitLogging()
+	if err != nil {
+		t.Fatalf("InitLogging() returned error: %v", err)
+	}
+
+	observability.LogEvent("input_raw", map[string]interface{}{
+		"char": "d",
+	})
+
+	observability.LogEvent("input_converted", map[string]interface{}{
+		"direction": "DirRight",
+	})
+
+	content, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("Failed to read log file: %v", err)
+	}
+
+	logContent := string(content)
+
+	if !containsSubstring(logContent, "input_raw") {
+		t.Error("Expected log to contain 'input_raw' event")
+	}
+
+	if !containsSubstring(logContent, "input_converted") {
+		t.Error("Expected log to contain 'input_converted' event")
+	}
+
+	if !containsSubstring(logContent, "d") {
+		t.Error("Expected log to contain char 'd'")
+	}
+
+	if !containsSubstring(logContent, "DirRight") {
+		t.Error("Expected log to contain 'DirRight' direction")
+	}
+
+	os.Unsetenv("DEBUG")
+	os.RemoveAll(logsDir)
+}
+
 func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
