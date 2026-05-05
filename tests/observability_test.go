@@ -189,6 +189,81 @@ func TestPostcondition4_LogRenderEvents(t *testing.T) {
 	os.RemoveAll(logsDir)
 }
 
+func TestPostcondition5_SnapshotOnGameOver(t *testing.T) {
+	os.Setenv("DEBUG", "1")
+
+	logsDir := "./logs"
+	os.RemoveAll(logsDir)
+
+	err := observability.InitLogging()
+	if err != nil {
+		t.Fatalf("InitLogging() returned error: %v", err)
+	}
+
+	g := game.NewGame()
+
+	for i := 0; i < 100; i++ {
+		g.Update(game.DirRight)
+		if g.IsOver() {
+			break
+		}
+	}
+
+	err = observability.SnapshotBoard(g, "game_over_wall_collision")
+	if err != nil {
+		t.Fatalf("SnapshotBoard() returned error: %v", err)
+	}
+
+	files, err := os.ReadDir(logsDir)
+	if err != nil {
+		t.Fatalf("Failed to read logs directory: %v", err)
+	}
+
+	snapshotFound := false
+	for _, f := range files {
+		if containsSubstring(f.Name(), "board-snapshot") {
+			snapshotFound = true
+
+			snapshotFile := logsDir + "/" + f.Name()
+			content, err := os.ReadFile(snapshotFile)
+			if err != nil {
+				t.Fatalf("Failed to read snapshot file: %v", err)
+			}
+
+			snapshotContent := string(content)
+
+			if !containsSubstring(snapshotContent, "snake_segments") {
+				t.Error("Expected snapshot to contain 'snake_segments'")
+			}
+
+			if !containsSubstring(snapshotContent, "food_position") {
+				t.Error("Expected snapshot to contain 'food_position'")
+			}
+
+			if !containsSubstring(snapshotContent, "score") {
+				t.Error("Expected snapshot to contain 'score'")
+			}
+
+			if !containsSubstring(snapshotContent, "high_score") {
+				t.Error("Expected snapshot to contain 'high_score'")
+			}
+
+			if !containsSubstring(snapshotContent, "reason") {
+				t.Error("Expected snapshot to contain 'reason'")
+			}
+
+			break
+		}
+	}
+
+	if !snapshotFound {
+		t.Error("Expected board snapshot file to be created in ./logs/")
+	}
+
+	os.Unsetenv("DEBUG")
+	os.RemoveAll(logsDir)
+}
+
 func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
