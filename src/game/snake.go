@@ -68,3 +68,7 @@ func (s *Snake) CollidesWithSelf() bool {
 func (s *Snake) Segments() []Position {
 	return s.segments
 }
+
+func (s *Snake) Direction() Direction {
+	return s.direction
+}

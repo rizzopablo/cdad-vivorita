@@ -7,11 +7,11 @@ import (
 
 	"vivorita2/src/game"
 	"vivorita2/src/input"
+	"vivorita2/src/observability"
 	"vivorita2/src/render"
 )
 
 func main() {
-	// Initialize screen
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		panic(err)
@@ -23,7 +23,12 @@ func main() {
 
 	g := game.NewGameWithHighScore("~/.vivorita2_highscore.json")
 
-	// Start game loop with ticker
+	if err := observability.InitLogging(); err != nil {
+		panic(err)
+	}
+
+	input.LogEvent = observability.LogEvent
+
 	ticker := time.NewTicker(150 * time.Millisecond)
 	defer ticker.Stop()
 
@@ -33,13 +38,14 @@ func main() {
 		case <-ticker.C:
 			if !g.IsPaused() && !g.IsOver() {
 				render.RenderBoard(screen, g.Snake(), g.Food(), g.Score(), g.HighScore())
+				observability.LogEvent("render", map[string]interface{}{
+					"source": "ticker",
+				})
 				screen.Show()
 			}
 		default:
-			// Non-blocking read of input
-			if dir, err := input.ReadDirectionNonBlocking(); err == nil {
-				// Convert input.Direction to game.Direction
-				gameDir := convertInputToGameDirection(dir)
+			if dir, err := input.ReadDirectionNonBlocking(screen); err == nil {
+				gameDir := convertInputToGameDirection(dir, g.Snake().Direction())
 
 				switch dir {
 				case input.DirQuit:
@@ -53,8 +59,18 @@ func main() {
 				default:
 					if !g.IsOver() {
 						g.Update(gameDir)
+						observability.LogEvent("update", map[string]interface{}{
+							"direction":  directionName(dir),
+							"snake_head": g.Snake().Head(),
+							"score":      g.Score(),
+							"over":       g.IsOver(),
+							"paused":     g.IsPaused(),
+						})
 						if !g.IsPaused() {
 							render.RenderBoard(screen, g.Snake(), g.Food(), g.Score(), g.HighScore())
+							observability.LogEvent("render", map[string]interface{}{
+								"source": "update",
+							})
 							screen.Show()
 						}
 					}
@@ -62,8 +78,15 @@ func main() {
 			}
 
 			if g.IsOver() {
-				// Show game over screen briefly before exiting
+				if err := observability.SnapshotBoard(g, "game_over"); err != nil {
+					observability.LogEvent("snapshot_error", map[string]interface{}{
+						"error": err.Error(),
+					})
+				}
 				render.RenderBoard(screen, g.Snake(), g.Food(), g.Score(), g.HighScore())
+				observability.LogEvent("render", map[string]interface{}{
+					"source": "gameover",
+				})
 				screen.Show()
 				time.Sleep(3 * time.Second)
 				running = false
@@ -72,8 +95,7 @@ func main() {
 	}
 }
 
-// Convert input.Direction to game.Direction
-func convertInputToGameDirection(inputDir input.Direction) game.Direction {
+func convertInputToGameDirection(inputDir input.Direction, currentDir game.Direction) game.Direction {
 	switch inputDir {
 	case input.DirUp:
 		return game.DirUp
@@ -83,7 +105,28 @@ func convertInputToGameDirection(inputDir input.Direction) game.Direction {
 		return game.DirLeft
 	case input.DirRight:
 		return game.DirRight
+	case input.DirNone:
+		return currentDir
 	default:
-		return game.DirUp
+		return currentDir
+	}
+}
+
+func directionName(d input.Direction) string {
+	switch d {
+	case input.DirUp:
+		return "DirUp"
+	case input.DirDown:
+		return "DirDown"
+	case input.DirLeft:
+		return "DirLeft"
+	case input.DirRight:
+		return "DirRight"
+	case input.DirPause:
+		return "DirPause"
+	case input.DirQuit:
+		return "DirQuit"
+	default:
+		return "DirUp"
 	}
 }

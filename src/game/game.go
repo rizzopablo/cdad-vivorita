@@ -20,6 +20,7 @@ const (
 	DirDown
 	DirLeft
 	DirRight
+	DirNone
 )
 
 type Game struct {
@@ -65,13 +66,14 @@ func (g *Game) Run() {
 	defer ticker.Stop()
 
 	running := true
+	currentDir := DirRight // Initial direction
 	for running {
 		<-ticker.C
 
 		// Non-blocking read of input
-		if dir, err := input.ReadDirectionNonBlocking(); err == nil {
-			// Convert input.Direction to game.Direction
-			gameDir := convertInputToGameDirection(dir)
+		if dir, err := input.ReadDirectionNonBlocking(nil); err == nil {
+			// Convert input.Direction to game.Direction, passing current direction
+			gameDir := convertInputToGameDirection(dir, currentDir)
 
 			switch dir {
 			case input.DirQuit:
@@ -83,8 +85,9 @@ func (g *Game) Run() {
 					g.Pause()
 				}
 			default:
-				if !g.IsOver() {
+				if !g.IsOver() && gameDir != DirNone {
 					g.Update(gameDir)
+					currentDir = gameDir
 				}
 			}
 		}
@@ -97,7 +100,7 @@ func (g *Game) Run() {
 }
 
 // Convert input.Direction to game.Direction
-func convertInputToGameDirection(inputDir input.Direction) Direction {
+func convertInputToGameDirection(inputDir input.Direction, currentDir Direction) Direction {
 	switch inputDir {
 	case input.DirUp:
 		return DirUp
@@ -108,7 +111,7 @@ func convertInputToGameDirection(inputDir input.Direction) Direction {
 	case input.DirRight:
 		return DirRight
 	default:
-		return DirUp
+		return currentDir
 	}
 }
 

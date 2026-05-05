@@ -1,12 +1,14 @@
 package input
 
 import (
-	"os"
-	"os/exec"
-	"runtime"
+	"fmt"
 	"strings"
 	"time"
+
+	"github.com/gdamore/tcell/v2"
 )
+
+var LogEvent func(event string, data map[string]interface{})
 
 type Direction int
 
@@ -17,91 +19,127 @@ const (
 	DirRight
 	DirPause
 	DirQuit
+	DirNone
 )
 
-// ReadDirectionNonBlocking reads a direction key press without blocking
-func ReadDirectionNonBlocking() (Direction, error) {
-	if runtime.GOOS == "windows" {
-		return readDirectionWindows()
-	}
-	return readDirectionUnix()
-}
-
-// On Unix systems, we can use a non-blocking approach
-func readDirectionUnix() (Direction, error) {
-	// Try to read a character with a short timeout
-	cmd := exec.Command("bash", "-c", "read -n 1 -t 0.01 char && echo -n $char || exit 1")
-	output, err := cmd.Output()
-
-	if err != nil {
-		return DirUp, nil // Not really an error, just no input
+func ReadDirectionNonBlocking(screen tcell.Screen) (Direction, error) {
+	if screen == nil {
+		return DirNone, nil
 	}
 
-	if len(output) == 0 {
-		return DirUp, nil // No input
-	}
-
-	char := string(output[0])
-
-	// Map inputs to directions
-	switch strings.ToLower(char) {
-	case "w":
-		return DirUp, nil
-	case "s":
-		return DirDown, nil
-	case "a":
-		return DirLeft, nil
-	case "d":
-		return DirRight, nil
-	case "q":
-		return DirQuit, nil
-	case "p":
-		return DirPause, nil
-	default:
-		return DirUp, nil
-	}
-}
-
-// On Windows, we'll implement a simpler version
-func readDirectionWindows() (Direction, error) {
-	// For now, just return a default
-	return DirUp, nil
-}
-
-// ReadDirection is the original blocking version
-func ReadDirection() (Direction, error) {
-	// For a full implementation, we'd need a more sophisticated approach
-	// For now we'll just simulate reading from stdin with a timeout
-	done := make(chan Direction, 1)
+	evCh := make(chan tcell.Event, 1)
 	go func() {
-		var char rune
-		_, err := os.Stdin.Read([]byte{byte(char)})
-		if err != nil {
-			return
-		}
-
-		switch strings.ToLower(string(char)) {
-		case "w":
-			done <- DirUp
-		case "s":
-			done <- DirDown
-		case "a":
-			done <- DirLeft
-		case "d":
-			done <- DirRight
-		case "q":
-			done <- DirQuit
-		case "p":
-			done <- DirPause
-		default:
-			done <- DirUp
-		}
+		evCh <- screen.PollEvent()
 	}()
-
 	select {
-	case dir := <-done:
-		return dir, nil
-	case <-time.After(10 * time.Millisecond): // Short timeout to mimic non-blocking
-		return DirUp, nil // No input
+	case ev := <-evCh:
+		return handleKeyEvent(ev)
+	case <-time.After(10 * time.Millisecond):
+		return DirNone, nil
 	}
+}
+
+func handleKeyEvent(ev tcell.Event) (Direction, error) {
+	switch ev := ev.(type) {
+	case *tcell.EventKey:
+		keyName := keyToString(ev.Key())
+		r := string(ev.Rune())
+
+		if LogEvent != nil {
+			LogEvent("input_raw", map[string]interface{}{
+				"key":  keyName,
+				"rune": r,
+			})
+		}
+
+		switch ev.Key() {
+		case tcell.KeyESC, tcell.KeyCtrlC:
+			if LogEvent != nil {
+				LogEvent("input_converted", map[string]interface{}{
+					"direction": "DirQuit",
+				})
+			}
+			return DirQuit, nil
+		case tcell.KeyRune:
+			switch strings.ToLower(r) {
+			case "w":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirUp",
+					})
+				}
+				return DirUp, nil
+			case "s":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirDown",
+					})
+				}
+				return DirDown, nil
+			case "a":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirLeft",
+					})
+				}
+				return DirLeft, nil
+			case "d":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirRight",
+					})
+				}
+				return DirRight, nil
+			case "p":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirPause",
+					})
+				}
+				return DirPause, nil
+			case "q":
+				if LogEvent != nil {
+					LogEvent("input_converted", map[string]interface{}{
+						"direction": "DirQuit",
+					})
+				}
+				return DirQuit, nil
+			default:
+				if LogEvent != nil {
+					LogEvent("input_error", map[string]interface{}{
+						"key":  keyName,
+						"rune": r,
+					})
+				}
+				return DirNone, nil
+			}
+		default:
+			if LogEvent != nil {
+				LogEvent("input_error", map[string]interface{}{
+					"key":  keyName,
+					"rune": r,
+				})
+			}
+			return DirNone, nil
+		}
+	default:
+		return DirNone, nil
+	}
+}
+
+func keyToString(k tcell.Key) string {
+	switch k {
+	case tcell.KeyRune:
+		return "KeyRune"
+	case tcell.KeyESC:
+		return "KeyESC"
+	case tcell.KeyCtrlC:
+		return "KeyCtrlC"
+	default:
+		return fmt.Sprintf("Key%d", int(k))
+	}
+}
+
+func ReadDirection() (Direction, error) {
+	return DirNone, nil
 }
