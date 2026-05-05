@@ -1,0 +1,62 @@
+```
+# Go build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Go cache and modules
+vendor/
+*.mod
+*.sum
+go.work.sum
+
+# Dependencies
+node_modules/
+__pycache__/
+*.egg-info/
+.eggs/
+.Python
+venv/
+.env
+.env.*
+
+# Build directories
+build/
+dist/
+target/
+_coverage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Test and coverage
+.coverage
+htmlcov/
+.coverage.*
+.coverage-*
+
+# OS generated files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+```
