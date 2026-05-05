@@ -1,7 +1,7 @@
 {
   "version": 1,
   "active_feature": "005-input-capture-broken",
-  "current_stage": "merge",
+  "current_stage": "done",
   "tdd_substage": null,
   "postconditions_status": {"1": "done", "2": "done", "3": "done", "4": "done", "5": "done", "6": "done", "7": "done", "8": "done", "9": "done", "10": "done"},
   "stage_history": [

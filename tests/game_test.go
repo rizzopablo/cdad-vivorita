@@ -224,6 +224,41 @@ func TestGame_DirectionPreservationBehavior(t *testing.T) {
 	}
 }
 
+// Test: Vertical direction semantics (DirUp decreases Y, DirDown increases Y)
+func TestSnake_VerticalDirectionSemantics(t *testing.T) {
+	// DirUp should move UP (decrease Y, since Y=0 is top of screen)
+	// DirDown should move DOWN (increase Y, since Y increases downward)
+	// DirLeft should move LEFT (decrease X)
+	// DirRight should move RIGHT (increase X)
+
+	// Test DirUp: should decrease Y
+	s := game.NewSnake()
+	initialHead := s.Head()
+	s.Move(game.DirUp)
+	afterUpHead := s.Head()
+	if afterUpHead.Y >= initialHead.Y {
+		t.Errorf("DirUp FAIL: Y should decrease (move up). Was Y=%d, now Y=%d", initialHead.Y, afterUpHead.Y)
+	}
+
+	// Test DirDown: should increase Y
+	s = game.NewSnake()
+	initialHead = s.Head()
+	s.Move(game.DirDown)
+	afterDownHead := s.Head()
+	if afterDownHead.Y <= initialHead.Y {
+		t.Errorf("DirDown FAIL: Y should increase (move down). Was Y=%d, now Y=%d", initialHead.Y, afterDownHead.Y)
+	}
+
+	// Test DirRight: should increase X (snake starts facing right, so this is valid)
+	s = game.NewSnake()
+	initialHead = s.Head()
+	s.Move(game.DirRight)
+	afterRightHead := s.Head()
+	if afterRightHead.X <= initialHead.X {
+		t.Errorf("DirRight FAIL: X should increase. Was X=%d, now X=%d", initialHead.X, afterRightHead.X)
+	}
+}
+
 // PC1: Game loop usa ticker con duración de 200ms en lugar de 150ms
 func TestGameLoop_TickerIs200ms(t *testing.T) {
 	// PC1: El game loop debe usar time.NewTicker(200 * time.Millisecond), no 150ms

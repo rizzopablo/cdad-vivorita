@@ -35,9 +35,9 @@ func (s *Snake) Move(dir Direction) {
 
 	switch dir {
 	case DirUp:
-		newHead = Position{X: head.X, Y: head.Y + 1}
-	case DirDown:
 		newHead = Position{X: head.X, Y: head.Y - 1}
+	case DirDown:
+		newHead = Position{X: head.X, Y: head.Y + 1}
 	case DirLeft:
 		newHead = Position{X: head.X - 1, Y: head.Y}
 	case DirRight:
