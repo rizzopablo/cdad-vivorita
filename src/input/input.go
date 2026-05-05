@@ -62,6 +62,34 @@ func handleKeyEvent(ev tcell.Event) (Direction, error) {
 				})
 			}
 			return DirQuit, nil
+		case tcell.KeyUp:
+			if LogEvent != nil {
+				LogEvent("input_converted", map[string]interface{}{
+					"direction": "DirUp",
+				})
+			}
+			return DirUp, nil
+		case tcell.KeyDown:
+			if LogEvent != nil {
+				LogEvent("input_converted", map[string]interface{}{
+					"direction": "DirDown",
+				})
+			}
+			return DirDown, nil
+		case tcell.KeyLeft:
+			if LogEvent != nil {
+				LogEvent("input_converted", map[string]interface{}{
+					"direction": "DirLeft",
+				})
+			}
+			return DirLeft, nil
+		case tcell.KeyRight:
+			if LogEvent != nil {
+				LogEvent("input_converted", map[string]interface{}{
+					"direction": "DirRight",
+				})
+			}
+			return DirRight, nil
 		case tcell.KeyRune:
 			switch strings.ToLower(r) {
 			case "w":
