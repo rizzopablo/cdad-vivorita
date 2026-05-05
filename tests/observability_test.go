@@ -3,6 +3,7 @@ package tests
 import (
 	"os"
 	"testing"
+	"vivorita2/src/game"
 	"vivorita2/src/observability"
 )
 
@@ -98,6 +99,54 @@ func TestPostcondition2_LogInputEvents(t *testing.T) {
 
 	if !containsSubstring(logContent, "DirRight") {
 		t.Error("Expected log to contain 'DirRight' direction")
+	}
+
+	os.Unsetenv("DEBUG")
+	os.RemoveAll(logsDir)
+}
+
+func TestPostcondition3_LogUpdateEvents(t *testing.T) {
+	os.Setenv("DEBUG", "1")
+
+	logsDir := "./logs"
+	logFile := logsDir + "/vivorita2-debug.log"
+
+	os.RemoveAll(logsDir)
+
+	err := observability.InitLogging()
+	if err != nil {
+		t.Fatalf("InitLogging() returned error: %v", err)
+	}
+
+	g := game.NewGame()
+
+	g.Update(game.DirRight)
+
+	observability.LogEvent("update", map[string]interface{}{
+		"direction":  "DirRight",
+		"snake_head": g.Snake().Head(),
+		"score":      g.Score(),
+		"over":       g.IsOver(),
+		"paused":     g.IsPaused(),
+	})
+
+	content, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("Failed to read log file: %v", err)
+	}
+
+	logContent := string(content)
+
+	if !containsSubstring(logContent, "update") {
+		t.Error("Expected log to contain 'update' event")
+	}
+
+	if !containsSubstring(logContent, "DirRight") {
+		t.Error("Expected log to contain direction 'DirRight'")
+	}
+
+	if !containsSubstring(logContent, "score") {
+		t.Error("Expected log to contain 'score'")
 	}
 
 	os.Unsetenv("DEBUG")
