@@ -1,5 +1,8 @@
 # Vivorita 2: CDAD Methodology Case Study
 
+<img width="410" height="404" alt="imagen" src="https://github.com/user-attachments/assets/38e0e1f7-55fd-4614-b855-23b5ede34545" />
+
+
 ## Overview
 
 **Vivorita 2** es el primer proyecto desarrollado **íntegramente mediante Contract-Driven AI Development (CDAD)**, una metodología de cinco etapas que integra especificación formal, test-driven development, revisión en capas, y memory banking.
