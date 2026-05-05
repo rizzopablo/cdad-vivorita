@@ -264,6 +264,66 @@ func TestPostcondition5_SnapshotOnGameOver(t *testing.T) {
 	os.RemoveAll(logsDir)
 }
 
+func TestPostcondition7_IntegrationFullFlow(t *testing.T) {
+	os.Setenv("DEBUG", "1")
+
+	logsDir := "./logs"
+	logFile := logsDir + "/vivorita2-debug.log"
+
+	os.RemoveAll(logsDir)
+
+	err := observability.InitLogging()
+	if err != nil {
+		t.Fatalf("InitLogging() returned error: %v", err)
+	}
+
+	g := game.NewGame()
+	initialHead := g.Snake().Head()
+
+	observability.LogEvent("input_converted", map[string]interface{}{
+		"direction": "DirRight",
+	})
+
+	g.Update(game.DirRight)
+
+	observability.LogEvent("update", map[string]interface{}{
+		"direction":  "DirRight",
+		"snake_head": g.Snake().Head(),
+		"score":      g.Score(),
+	})
+
+	observability.LogEvent("render", map[string]interface{}{
+		"timestamp": "2026-05-05T12:00:00Z",
+	})
+
+	finalHead := g.Snake().Head()
+	if finalHead.X == initialHead.X {
+		t.Error("Expected snake head to move after Update(DirRight)")
+	}
+
+	content, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("Failed to read log file: %v", err)
+	}
+
+	logContent := string(content)
+
+	if !containsSubstring(logContent, "input_converted") {
+		t.Error("Expected log to contain 'input_converted' event")
+	}
+
+	if !containsSubstring(logContent, "update") {
+		t.Error("Expected log to contain 'update' event")
+	}
+
+	if !containsSubstring(logContent, "render") {
+		t.Error("Expected log to contain 'render' event")
+	}
+
+	os.Unsetenv("DEBUG")
+	os.RemoveAll(logsDir)
+}
+
 func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
