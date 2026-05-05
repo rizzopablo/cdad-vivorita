@@ -10,6 +10,8 @@ import (
 
 var LogEvent func(event string, data map[string]interface{})
 
+const InputPollTimeout = 10 * time.Millisecond
+
 type Direction int
 
 const (
@@ -34,7 +36,7 @@ func ReadDirectionNonBlocking(screen tcell.Screen) (Direction, error) {
 	select {
 	case ev := <-evCh:
 		return handleKeyEvent(ev)
-	case <-time.After(10 * time.Millisecond):
+	case <-time.After(InputPollTimeout):
 		return DirNone, nil
 	}
 }

@@ -29,10 +29,11 @@ func main() {
 
 	input.LogEvent = observability.LogEvent
 
-	ticker := time.NewTicker(150 * time.Millisecond)
+	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
 
 	running := true
+	firstInputReceived := false
 	for running {
 		select {
 		case <-ticker.C:
@@ -56,8 +57,11 @@ func main() {
 					} else {
 						g.Pause()
 					}
-				default:
-					if !g.IsOver() {
+				case input.DirUp, input.DirDown, input.DirLeft, input.DirRight:
+					if !firstInputReceived {
+						firstInputReceived = true
+					}
+					if firstInputReceived && !g.IsOver() {
 						g.Update(gameDir)
 						observability.LogEvent("update", map[string]interface{}{
 							"direction":  directionName(dir),
