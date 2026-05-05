@@ -223,3 +223,30 @@ func TestGame_DirectionPreservationBehavior(t *testing.T) {
 		}
 	}
 }
+
+// PC1: Game loop usa ticker con duración de 200ms en lugar de 150ms
+func TestGameLoop_TickerIs200ms(t *testing.T) {
+	// PC1: El game loop debe usar time.NewTicker(200 * time.Millisecond), no 150ms
+	// Verificar código fuente de main.go
+
+	source, err := os.ReadFile("../src/main.go")
+	if err != nil {
+		t.Fatalf("Failed to read main.go: %v", err)
+	}
+
+	sourceStr := string(source)
+
+	// Buscar la línea del ticker
+	has200msTicker := strings.Contains(sourceStr, "time.NewTicker(200 * time.Millisecond)")
+	has150msTicker := strings.Contains(sourceStr, "time.NewTicker(150 * time.Millisecond)")
+
+	if !has200msTicker {
+		t.Errorf("PC1 RED: game loop ticker is not 200ms. " +
+			"Must have time.NewTicker(200 * time.Millisecond) in main.go game loop")
+	}
+
+	if has150msTicker {
+		t.Errorf("PC1 RED: game loop still uses old 150ms ticker. " +
+			"Must change to time.NewTicker(200 * time.Millisecond)")
+	}
+}
