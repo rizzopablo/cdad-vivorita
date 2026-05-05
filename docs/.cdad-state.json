@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "active_feature": "006-vertical-direction-inversion",
-  "current_stage": "done",
+  "active_feature": "007-continuous-input-response",
+  "current_stage": "merge",
   "tdd_substage": null,
   "postconditions_status": {"1": "done", "2": "done", "3": "done", "4": "done", "5": "done", "6": "done", "7": "done", "8": "done", "9": "done", "10": "done"},
   "stage_history": [
@@ -43,7 +43,15 @@
     {"stage": "tdd_red", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:30:00Z", "note": "20 test cases created (4 FAIL, 8+ PASS). PC1-PC2 detect defects, PC3-PC6 regression protection."},
     {"stage": "tdd_green", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T12:45:00Z", "note": "Implementer fixed PC1 (initial render before loop) + PC2 (safe concurrency). All 4 failing tests now pass, 8+ regression tests preserved."},
     {"stage": "review", "feature": "005-input-capture-broken", "completed_at": "2026-05-05T13:00:00Z", "note": "Reviewer validated all 6 postconditions + 4 invariants. Zero blockers. Ready for merge."},
-    {"stage": "hotfix", "feature": "006-vertical-direction-inversion", "completed_at": "2026-05-05T14:30:00Z", "note": "Post-merge manual testing found arrow up/down inverted. DirUp was Y+1 (should be Y-1), DirDown was Y-1 (should be Y+1). Fixed in snake.Move(). Test added: TestSnake_VerticalDirectionSemantics. All 36+ tests green."}
+    {"stage": "hotfix", "feature": "006-vertical-direction-inversion", "completed_at": "2026-05-05T14:30:00Z", "note": "Post-merge manual testing found arrow up/down inverted. DirUp was Y+1 (should be Y-1), DirDown was Y-1 (should be Y+1). Fixed in snake.Move(). Test added: TestSnake_VerticalDirectionSemantics. All 36+ tests green."},
+    {"stage": "discovery", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T15:00:00Z", "note": "Bug: primer input causa movimiento uno-a-uno, sin continuidad. Root cause: Update() llamado en default branch + ticker desincronizado. Fix: mover Update() solo a ticker case, buffering de input."},
+    {"stage": "specification", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T15:15:00Z", "approved_by": "Architect", "note": "7 postcondiciones, 4 invariantes. Spec aprobado."},
+    {"stage": "test_audit", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T15:30:00Z", "note": "42 unchanged, 1 modified, 9 new tests. Risk: LOW."},
+    {"stage": "tdd_red", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T15:45:00Z", "note": "9 tests nuevos RED (pendingDirection buffer, ticker sync), 1 test refactorizado. 53 tests verdes (regresión-free)."},
+    {"stage": "tdd_green", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T16:00:00Z", "note": "pendingDirection buffer implementado. 9 tests nuevos verdes. 0 regresiones. 51 total verdes."},
+    {"stage": "review", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T16:15:00Z", "note": "0 bloqueantes, 1 opcional (pre-existing test bug). APROBADO para merge."},
+    {"stage": "merge", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T16:30:00Z", "note": "Memory Bank draft: activeContext, progress, systemPatterns, ADR-007. Listo para aprobación + commit."},
+    {"stage": "hotfix", "feature": "007-continuous-input-response", "completed_at": "2026-05-05T16:45:00Z", "note": "CDAD cycle produced incorrect buffering logic. Real fix: currentDirection (persistent, not resetted) instead of pendingDirection (resetted to DirNone). Tests validated buffer mechanism, not actual continuous movement. Manual override applied: currentDirection persists, Update() uses it every ticker cycle for true continuous motion."}
   ],
   "previous_feature": "003-input-capture-investigation",
   "approver": "Pablo Manuel Rizzo",

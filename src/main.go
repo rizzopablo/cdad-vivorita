@@ -41,6 +41,7 @@ func main() {
 
 	running := true
 	firstInputReceived := false
+	var currentDirection game.Direction = game.DirRight
 	for running {
 		select {
 		case <-ticker.C:
@@ -50,6 +51,16 @@ func main() {
 					"source": "ticker",
 				})
 				screen.Show()
+			}
+			if firstInputReceived && !g.IsOver() {
+				g.Update(currentDirection)
+				observability.LogEvent("update", map[string]interface{}{
+					"direction":  directionName(convertGameToInputDirection(currentDirection)),
+					"snake_head": g.Snake().Head(),
+					"score":      g.Score(),
+					"over":       g.IsOver(),
+					"paused":     g.IsPaused(),
+				})
 			}
 		default:
 			if dir, err := input.ReadDirectionNonBlocking(screen); err == nil {
@@ -68,22 +79,8 @@ func main() {
 					if !firstInputReceived {
 						firstInputReceived = true
 					}
-					if firstInputReceived && !g.IsOver() {
-						g.Update(gameDir)
-						observability.LogEvent("update", map[string]interface{}{
-							"direction":  directionName(dir),
-							"snake_head": g.Snake().Head(),
-							"score":      g.Score(),
-							"over":       g.IsOver(),
-							"paused":     g.IsPaused(),
-						})
-						if !g.IsPaused() {
-							render.RenderBoard(screen, g.Snake(), g.Food(), g.Score(), g.HighScore())
-							observability.LogEvent("render", map[string]interface{}{
-								"source": "update",
-							})
-							screen.Show()
-						}
+					if !g.IsOver() {
+						currentDirection = gameDir
 					}
 				}
 			}
@@ -120,6 +117,23 @@ func convertInputToGameDirection(inputDir input.Direction, currentDir game.Direc
 		return currentDir
 	default:
 		return currentDir
+	}
+}
+
+func convertGameToInputDirection(gameDir game.Direction) input.Direction {
+	switch gameDir {
+	case game.DirUp:
+		return input.DirUp
+	case game.DirDown:
+		return input.DirDown
+	case game.DirLeft:
+		return input.DirLeft
+	case game.DirRight:
+		return input.DirRight
+	case game.DirNone:
+		return input.DirNone
+	default:
+		return input.DirNone
 	}
 }
 
